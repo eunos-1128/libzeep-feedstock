@@ -18,7 +18,9 @@ build:
         export CXXFLAGS="${CXXFLAGS} -D_LIBCPP_DISABLE_AVAILABILITY"
         cmake -S . -B build ${CMAKE_ARGS} -DBUILD_SHARED_LIBS=ON
         cmake --build build --config Release --parallel ${CPU_COUNT}
-        ctest -V -C Release --test-dir build
+        if [[ "${build_platform}" == "${target_platform}" ]]; then
+          ctest -V -C Release --test-dir build
+        fi
         cmake --install build
       else: |
         @echo on
