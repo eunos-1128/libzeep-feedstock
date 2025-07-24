@@ -1,0 +1,253 @@
+diff --git a/lib-xml/src/doctype.cpp b/lib-xml/src/doctype.cpp
+index 2acf6727..b5204b2d 100644
+--- a/lib-xml/src/doctype.cpp
++++ b/lib-xml/src/doctype.cpp
+@@ -5,6 +5,7 @@
+ 
+ #define _SCL_SECURE_NO_WARNINGS
+ 
++#include <algorithm>
+ #include <memory>
+ #include <numeric>
+ #include <functional>
+diff --git a/lib-xml/src/xml-parser.cpp b/lib-xml/src/xml-parser.cpp
+index 6b6a9f00..81b0ded4 100644
+--- a/lib-xml/src/xml-parser.cpp
++++ b/lib-xml/src/xml-parser.cpp
+@@ -4,6 +4,7 @@
+ //     (See accompanying file LICENSE_1_0.txt or copy at
+ //           http://www.boost.org/LICENSE_1_0.txt)
+ 
++#include <algorithm>
+ #include <stack>
+ #include <map>
+ #include <sstream>
+@@ -523,7 +524,7 @@ struct parser_imp
+ 
+ 		if (m_standalone and result != s)
+ 			not_valid("Document cannot be standalone since an attribute was modified");
+-		
++
+ 		if (not isCDATA)
+ 			collapse_spaces(result);
+ 
+@@ -538,7 +539,7 @@ struct parser_imp
+ 	enum XMLToken
+ 	{
+ 		Undef,
+-		
++
+ 		Eq = '=',
+ 		QuestionMark = '?',
+ 		GreaterThan = '>',
+@@ -552,9 +553,9 @@ struct parser_imp
+ 		Asterisk = '*',
+ 		Slash = '/',
+ 		Comma = ',',
+-		
++
+ 		Eof = 256,
+-		Other,		// 
++		Other,		//
+ 
+ 		// these are tokens for the markup
+ 
+@@ -713,7 +714,7 @@ struct parser_imp
+ 		data_source& operator*() const { return *m_source; }
+ 
+ 		bool inserted() const { return m_inserted; }
+-		
++
+ 		parser_imp& m_impl;
+ 		data_source* m_source;
+ 		std::array<unicode,4> m_buffer;
+@@ -865,10 +866,10 @@ struct parser_imp
+ 	std::string m_token;
+ 
+ 	std::stack<source_state> m_source;
+-	
++
+ 	std::array<unicode,4> m_buffer;
+ 	std::array<unicode,4>::iterator m_buffer_ptr = m_buffer.begin();
+-	
++
+ 	float m_version = 1.0f;
+ 	encoding_type m_encoding = encoding_type::UTF8;
+ 	bool m_standalone;
+@@ -1066,7 +1067,7 @@ void parser_imp::match(XMLToken token)
+ 				pereference();
+ 			else
+ 				not_well_formed("Invalid entity reference at this location");
+-		} 
++		}
+ 	}
+ }
+ 
+@@ -1138,17 +1139,17 @@ parser_imp::XMLToken parser_imp::get_next_token()
+ 				case 0:
+ 					token = XMLToken::Eof;
+ 					break;
+-				
++
+ 				case ' ':
+ 				case '\t':
+ 				case '\n':
+ 					state = state_WhiteSpace;
+ 					break;
+-				
++
+ 				case '<':
+ 					state = state_Tag;
+ 					break;
+-				
++
+ 				case '\'':
+ 				case '"':
+ 				{
+@@ -1386,19 +1387,19 @@ parser_imp::XMLToken parser_imp::get_next_content()
+ 				case 0:
+ 					token = XMLToken::Eof; // end of file reached
+ 					break;
+-	
++
+ 				case '<':
+ 					state = state_Tag; // beginning of a tag
+ 					break;
+-				
++
+ 				case '&':
+ 					state = state_Reference; // a& reference;
+ 					break;
+-				
++
+ 				case ']':
+ 					state = state_Illegal; // avoid ]]> in text
+ 					break;
+-				
++
+ 				case ' ':
+ 				case '\t':
+ 				case '\n':
+@@ -1700,7 +1701,7 @@ void parser_imp::parse(bool validate, bool validate_ns)
+ 	{
+ 		doctype::content_spec_any allowed;
+ 		doctype::validator valid(&allowed);
+-		
++
+ 		element(valid);
+ 	}
+ 
+@@ -1735,7 +1736,7 @@ void parser_imp::xml_decl()
+ 	if (m_lookahead == XMLToken::XMLDecl)
+ 	{
+ 		encoding_type encoding = m_encoding;
+-		
++
+ 		if (m_encoding == encoding_type::UTF8)
+ 			m_source.top()->encoding(encoding_type::ASCII);
+ 
+@@ -1910,7 +1911,7 @@ void parser_imp::doctypedecl()
+ 
+ 				if (not is_valid_system_literal(uri))
+ 					not_well_formed("invalid system literal");
+-				
++
+ 				if (m_root_element == "html" and uri == "about:legacy-compat")
+ 					m_is_html5 = true;
+ 			}
+@@ -2743,12 +2744,12 @@ void parser_imp::attlist_decl()
+ 				match(m_lookahead);
+ 				attribute->set_default(doctype::AttributeDefault::Required, "");
+ 				break;
+-			
++
+ 			case XMLToken::Implied:
+ 				match(m_lookahead);
+ 				attribute->set_default(doctype::AttributeDefault::Implied, "");
+ 				break;
+-			
++
+ 			case XMLToken::Fixed:
+ 			{
+ 				match(m_lookahead);
+@@ -2773,7 +2774,7 @@ void parser_imp::attlist_decl()
+ 			{
+ 				if (attribute->get_type() == doctype::AttributeType::ID)
+ 					not_valid("the default declaration for an ID attribute declaration should be #IMPLIED or #REQUIRED");
+-				
++
+ 				if (m_standalone)
+ 					not_valid("Document cannot be standalone since there is a default value for an attribute");
+ 
+@@ -3102,7 +3103,7 @@ void parser_imp::parse_parameter_entity_declaration(std::string& s)
+ 
+ 	if (state != 0)
+ 		not_well_formed("invalid reference");
+-	
++
+ 	if (open != 0)
+ 		not_valid("invalid reference");
+ 
+@@ -3301,7 +3302,7 @@ std::string parser_imp::normalize_attribute_value()
+ 					result += ' ';
+ 				else if (c == '&')
+ 					state = state_ReferenceStart;
+-				else 
++				else
+ 					append(result, c);
+ 				break;
+ 
+@@ -3389,7 +3390,7 @@ std::string parser_imp::normalize_attribute_value()
+ 				{
+ 					if (std::find(m_entities_on_stack.begin(), m_entities_on_stack.end(), name) != m_entities_on_stack.end())
+ 						not_well_formed("infinite recursion in nested entity references");
+-					
++
+ 					m_entities_on_stack.push_back(name);
+ 
+ 					const doctype::entity& e = get_general_entity(name);
+@@ -3452,7 +3453,7 @@ void parser_imp::collapse_spaces(std::string& s)
+ 
+ 	if (space and o != s.begin())
+ 		--o;
+-	
++
+ 	s.erase(o, s.end());
+ }
+ 
+@@ -3466,7 +3467,7 @@ void parser_imp::element(doctype::validator& valid)
+ 
+ 	if (not valid.allow(name))
+ 		not_valid("element '" + name + "' not expected at this position");
+-	
++
+ 	const doctype::element *dte = get_element(name);
+ 
+ 	if (m_has_dtd and dte == nullptr and m_validating)
+@@ -3523,7 +3524,7 @@ void parser_imp::element(doctype::validator& valid)
+ 		{
+ 			if (not ((m_version > 1.0f and attr_value.empty()) or is_valid_url(attr_value)))
+ 				not_well_formed("Not a valid namespace URI: " + attr_value);
+-			
++
+ 			if (not (m_version > 1.0f and attr_value.empty()) and ns.is_known_uri(attr_value))
+ 				not_well_formed("This uri is repeated: " + attr_value);
+ 
+@@ -3804,7 +3805,7 @@ void parser_imp::content(doctype::validator& valid)
+ 			{
+ 				if (std::find(m_entities_on_stack.begin(), m_entities_on_stack.end(), m_token) != m_entities_on_stack.end())
+ 					not_well_formed("infinite recursion of entity references");
+-				
++
+ 				m_entities_on_stack.push_back(m_token);
+ 
+ 				const doctype::entity& e = get_general_entity(m_token);
+@@ -3952,7 +3953,7 @@ void parser_imp::pi()
+ 
+ 	if (pi_target.empty())
+ 		not_well_formed("processing instruction target missing");
+-	
++
+ 	if (m_validating_ns and pi_target.find(':') != std::string::npos)
+ 		not_well_formed("processing instruction name should not contain a colon");
+ 
