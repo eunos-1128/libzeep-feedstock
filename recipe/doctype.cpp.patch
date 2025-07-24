@@ -1,0 +1,12 @@
+diff --git a/lib-xml/src/doctype.cpp b/lib-xml/src/doctype.cpp
+index 2acf6727..b5204b2d 100644
+--- a/lib-xml/src/doctype.cpp
++++ b/lib-xml/src/doctype.cpp
+@@ -5,6 +5,7 @@
+ 
+ #define _SCL_SECURE_NO_WARNINGS
+ 
++#include <algorithm>
+ #include <memory>
+ #include <numeric>
+ #include <functional>

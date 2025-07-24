@@ -9,6 +9,8 @@ package:
 source:
   url: https://github.com/mhekkel/${{ name }}/archive/refs/tags/v${{ version }}.tar.gz
   sha256: dc150b1c1b5ca652b7ada7fb014b2ffb6e3147e2199013d8aa763c0babba5f6d
+  patches: doctype.cpp.patch
+
 build:
   number: 0
   script:
