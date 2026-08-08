@@ -1,16 +1,15 @@
 context:
-  name: libzeep
   version: "7.3.2"
 
 package:
-  name: ${{ name }}
+  name: libzeep
   version: ${{ version }}
 
 source:
-  url: https://github.com/mhekkel/${{ name }}/archive/refs/tags/v${{ version }}.tar.gz
-  sha256: e794589ef8aad5bd4d7bf674ca0dfa2a4027b3bcc966496490ba18d8908cd080
+  url: https://forge.hekkelman.net/maarten/zeep/archive/v${{ version }}.tar.gz
+  sha256: bf679253623710f3f383ec3355968a68672d1ccb96130cb8c0214475561cfd55
 build:
-  number: 2
+  number: 3
   script:
     - if: unix
       then: |
@@ -54,29 +53,26 @@ requirements:
     - if: linux
       then: maartens_resource_compiler
   run_exports:
-    - ${{ pin_subpackage(name, upper_bound="x") }}
+    - ${{ pin_subpackage("libzeep", upper_bound="x") }}
   ignore_run_exports:
     by_name:
       - catch2
 
 tests:
-  - script:
-      - if: unix
-        then:
-          - test -d ${PREFIX}/include/zeep
-          - test -f ${PREFIX}/lib/libzeep${SHLIB_EXT}
-        else:
-          - if not exist "%LIBRARY_PREFIX%\include\zeep\" exit /b 1
-          - if not exist "%LIBRARY_PREFIX%\lib\zeep.lib" exit /b 1
-          - if not exist "%LIBRARY_PREFIX%\bin\zeep%SHLIB_EXT%" exit /b 1
+  - package_contents:
+      include:
+        - zeep/*
+      lib:
+        - zeep
+    strict: true
 
 about:
   homepage: https://mhekkel.github.io/libzeep
-  repository: https://github.com/mhekkel/libzeep
+  repository: https://forge.hekkelman.net/maarten/zeep
   documentation: https://mhekkel.github.io/libzeep
   license: BSL-1.0
   license_file: LICENSE_1_0.txt
-  summary: "C++ library for reading and writing XML and creating web, REST and SOAP servers."
+  summary: "C++ library for reading and writing XML and creating web, REST and SOAP servers"
   description: |
     Libzeep is a web application framework written in C++.
     To see a starter project visit the [libzeep-webapp-starter](https://github.com/mhekkel/libzeep-webapp-starter.git) page.
