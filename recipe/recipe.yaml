@@ -9,47 +9,10 @@ source:
   url: https://forge.hekkelman.net/maarten/zeep/archive/v${{ version }}.tar.gz
   sha256: 8733df126015057868523e96f3c03fd61b0da993a7792631fe02c455e6e8bda7
   patches:
-    - disable-flat-map-on-libstdcxx.patch
+    - use-std-map.patch
 
 build:
-  number: 0
-  script:
-    - if: unix
-      then: |
-        set -exo pipefail
-        export CXXFLAGS="${CXXFLAGS} -D_LIBCPP_DISABLE_AVAILABILITY"
-        if [[ ${build_platform} != ${target_platform} ]]; then
-            extra_cmake_args="-DCMAKE_CROSSCOMPILING=ON -DTEST_STD_CHRONO_FROM_STREAM_R=ON"
-            if [[ ${target_platform} == linux-* ]]; then
-                extra_cmake_args+=" -DTEST_STD_CHRONO_ZONED_TIME_R=0"
-            else
-                extra_cmake_args+=" -DTEST_STD_CHRONO_ZONED_TIME_R=ON"
-            fi
-        fi
-        cmake -S . -B build -G Ninja \
-          ${CMAKE_ARGS} \
-          -DBUILD_SHARED_LIBS=ON \
-          -DZEEP_USE_BOOST_ASIO=OFF \
-          ${extra_cmake_args}
-        cmake --build build --parallel ${CPU_COUNT}
-        if [[ "${CONDA_BUILD_CROSS_COMPILATION:-}" != "1" || "${CROSSCOMPILING_EMULATOR}" != "" ]]; then
-            ctest -V --test-dir build
-        fi
-        cmake --install build
-    - if: win
-      then: |
-        @echo on
-        cmake -S . -B build -G Ninja ^
-          %CMAKE_ARGS% ^
-          -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON ^
-          -DBUILD_SHARED_LIBS=ON ^
-          -DZEEP_USE_BOOST_ASIO=OFF ^
-          || exit /b 1
-        cmake --build build --parallel %CPU_COUNT% || exit /b 1
-        set PATH=%SRC_DIR%\build;%PATH%
-        @REM Run tests, excluding the http-test/fuzz-el-test which brings about a SEGFAULT/stack overflow error
-        ctest -V --test-dir build -E "(http-test|fuzz-el-test)" || exit /b 1
-        cmake --install build || exit /b 1
+  number: 1
 
 requirements:
   build:
@@ -64,16 +27,15 @@ requirements:
     - asio
     - catch2
     - howardhinnant_date
-    - libmcfp <2.0.5
-    - libzeem
+    - libmcfp >=2.1.1
+    - libzeem >=2.4.1
     - nlohmann_json
     - openssl
   run_exports:
-    - ${{ pin_subpackage("libzeep", upper_bound="x") }}
+    - ${{ pin_subpackage("libzeep", upper_bound="x.x.x") }}
   ignore_run_exports:
     from_package:
       - catch2
-      - libmcfp
 
 tests:
   - package_contents:

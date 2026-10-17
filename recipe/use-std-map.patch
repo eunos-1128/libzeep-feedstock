@@ -1,0 +1,30 @@
+diff --git a/include/zeep/el/object.hpp b/include/zeep/el/object.hpp
+index ed574d8..8887a78 100644
+--- a/include/zeep/el/object.hpp
++++ b/include/zeep/el/object.hpp
+@@ -26,11 +26,7 @@
+ # include <vector>
+ # include <version>
+ 
+-# if defined(__cpp_lib_flat_map)
+-#  include <flat_map>
+-# else
+-#  include <map>
+-# endif
++# include <map>
+ 
+ # if __has_include(<nlohmann/json.hpp>)
+ #  include <nlohmann/json.hpp>
+@@ -135,11 +131,8 @@ ZEEP_EXPORT class object
+ 	}
+ 
+ 	using nullptr_type = std::nullptr_t;
+-#if defined(__cpp_lib_flat_map)
+-	using object_type = std::flat_map<std::string, object>;
+-#else
++	// Use std::map regardless of std::flat_map availability.
+ 	using object_type = std::map<std::string, object>;
+-#endif
+ 	using array_type = std::vector<object>;
+ 	using string_type = std::string;
+ 	using int_type = int64_t;
